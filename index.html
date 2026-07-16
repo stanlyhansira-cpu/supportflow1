@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SupportFlow AI — Custom AI Support Agents</title>
+<meta name="description" content="We build custom AI support agents for any business. Live in 7 days."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --p1:#ff006e;--p2:#8338ec;--p3:#3a86ff;--p4:#06ffa5;--p5:#ffbe0b;--p6:#fb5607;
+  --bg:#07060f;--text:#f0eeff;--muted:rgba(240,238,255,0.55);
+  --font:'Inter',sans-serif;--display:'Orbitron',monospace;
+}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
+
+/* AURORA */
+.aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.ab{position:absolute;border-radius:50%;filter:blur(80px);opacity:.16;animation:drift 12s ease-in-out infinite alternate;}
+.ab1{width:600px;height:600px;background:var(--p2);top:-200px;left:-200px;}
+.ab2{width:500px;height:500px;background:var(--p1);top:30%;right:-150px;animation-delay:-3s;}
+.ab3{width:400px;height:400px;background:var(--p3);bottom:-100px;left:30%;animation-delay:-6s;}
+.ab4{width:300px;height:300px;background:var(--p4);top:60%;left:10%;animation-delay:-9s;}
+@keyframes drift{0%{transform:translate(0,0) scale(1);}100%{transform:translate(40px,30px) scale(1.1);}}
+.grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(131,56,236,0.05) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(131,56,236,0.05) 1px,transparent 1px);
+  background-size:52px 52px;}
+
+/* PAGE SYSTEM — only one .page visible at a time */
+.page{display:none;}
+.page.active{display:block;}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;
+  justify-content:space-between;padding:0 5%;height:68px;
+  background:rgba(7,6,15,0.88);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(131,56,236,0.2);}
+.nav-logo{font-family:var(--display);font-size:16px;font-weight:900;
+  letter-spacing:2px;text-decoration:none;text-transform:uppercase;cursor:pointer;
+  background:linear-gradient(90deg,var(--p1),var(--p2),var(--p3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-links{display:flex;gap:28px;list-style:none;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;
+  cursor:pointer;transition:color .2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-cta{background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;
+  padding:10px 22px;font-family:var(--display);font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;font-weight:700;border:none;cursor:pointer;
+  border-radius:6px;transition:all .25s;box-shadow:0 0 20px rgba(255,0,110,0.35);}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:0 0 32px rgba(255,0,110,0.6);}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px;}
+.hamburger span{display:block;width:22px;height:2px;
+  background:linear-gradient(90deg,var(--p1),var(--p2));transition:all .3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.mob-menu{display:none;position:fixed;top:68px;left:0;right:0;
+  background:rgba(7,6,15,0.99);border-bottom:1px solid rgba(131,56,236,0.2);
+  padding:20px 5%;z-index:199;flex-direction:column;gap:4px;}
+.mob-menu.open{display:flex;}
+.mob-menu a{color:var(--muted);text-decoration:none;font-size:15px;
+  padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:color .2s;}
+.mob-menu a:hover{color:var(--text);}
+.mob-cta{background:linear-gradient(135deg,var(--p1),var(--p2))!important;
+  color:#fff!important;padding:14px!important;text-align:center;
+  font-family:var(--display);font-size:11px;letter-spacing:2px;font-weight:700;
+  border-radius:8px;margin-top:8px;border:none!important;}
+
+/* SHARED */
+.grad-text{background:linear-gradient(135deg,var(--p1),var(--p2),var(--p3),var(--p4));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.btn-grad{background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;
+  padding:14px 28px;font-family:var(--display);font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;font-weight:700;text-decoration:none;border:none;
+  cursor:pointer;border-radius:8px;transition:all .25s;
+  box-shadow:0 0 24px rgba(255,0,110,0.4);display:inline-block;}
+.btn-grad:hover{transform:translateY(-3px);box-shadow:0 0 40px rgba(255,0,110,0.6);}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.18);color:var(--text);
+  padding:14px 28px;font-family:var(--display);font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;text-decoration:none;cursor:pointer;border-radius:8px;
+  transition:all .25s;display:inline-block;}
+.btn-ghost:hover{border-color:var(--p2);color:var(--p2);}
+.sec-badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--display);
+  font-size:9px;letter-spacing:3px;text-transform:uppercase;
+  padding:5px 14px;border-radius:100px;margin-bottom:16px;}
+.sb-pink{color:var(--p1);background:rgba(255,0,110,0.1);border:1px solid rgba(255,0,110,0.25);}
+.sb-purple{color:#b98fff;background:rgba(131,56,236,0.1);border:1px solid rgba(131,56,236,0.25);}
+.sb-blue{color:var(--p3);background:rgba(58,134,255,0.1);border:1px solid rgba(58,134,255,0.25);}
+.sb-green{color:var(--p4);background:rgba(6,255,165,0.08);border:1px solid rgba(6,255,165,0.25);}
+.sb-orange{color:var(--p6);background:rgba(251,86,7,0.1);border:1px solid rgba(251,86,7,0.25);}
+.sec-t{font-family:var(--display);font-size:clamp(20px,3vw,36px);
+  font-weight:900;letter-spacing:-0.5px;margin-bottom:14px;line-height:1.15;}
+.sec-sub{font-size:14px;color:var(--muted);max-width:520px;line-height:1.85;margin-bottom:52px;}
+.fi{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s ease;}
+.fi.vis{opacity:1;transform:translateY(0);}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--p4);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(1.5);}}
+
+/* ═══════════════════════════════
+   HOME PAGE
+═══════════════════════════════ */
+.hero{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;
+  gap:40px;align-items:center;max-width:1200px;margin:0 auto;padding:80px 5% 60px;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);
+  color:var(--p4);font-family:var(--display);font-size:9px;letter-spacing:3px;
+  text-transform:uppercase;padding:7px 16px;border-radius:100px;margin-bottom:24px;}
+.hero h1{font-family:var(--display);font-size:clamp(26px,4vw,52px);
+  font-weight:900;line-height:1.05;letter-spacing:-1px;margin-bottom:24px;}
+.hero-sub{font-size:15px;color:var(--muted);line-height:1.85;margin-bottom:36px;max-width:480px;}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;}
+.hero-pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:36px;}
+.pill{padding:6px 14px;border-radius:100px;font-size:12px;font-weight:600;}
+.pill-pink{background:rgba(255,0,110,0.15);color:var(--p1);border:1px solid rgba(255,0,110,0.3);}
+.pill-purple{background:rgba(131,56,236,0.15);color:#b98fff;border:1px solid rgba(131,56,236,0.3);}
+.pill-blue{background:rgba(58,134,255,0.15);color:#7eb8ff;border:1px solid rgba(58,134,255,0.3);}
+.pill-green{background:rgba(6,255,165,0.12);color:var(--p4);border:1px solid rgba(6,255,165,0.3);}
+
+/* ROBOT */
+.robot-scene{display:flex;flex-direction:column;align-items:center;gap:24px;position:relative;}
+.robot-glow-ring{position:absolute;width:280px;height:280px;border-radius:50%;
+  background:conic-gradient(from 0deg,var(--p1),var(--p2),var(--p3),var(--p4),var(--p5),var(--p1));
+  animation:spin 4s linear infinite;opacity:.2;filter:blur(20px);top:10px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.robot-wrap{position:relative;z-index:2;}
+
+/* CHAT WIDGET */
+.chat-widget{width:100%;max-width:360px;position:relative;z-index:2;}
+.chat-card{border-radius:16px;overflow:hidden;
+  background:rgba(14,12,30,0.92);border:1px solid rgba(131,56,236,0.3);}
+.chat-hdr{padding:14px 18px;display:flex;align-items:center;gap:12px;
+  background:linear-gradient(135deg,rgba(255,0,110,0.12),rgba(131,56,236,0.12));}
+.chat-av{width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--p1),var(--p2));
+  display:flex;align-items:center;justify-content:center;font-size:18px;}
+.chat-aname{font-family:var(--display);font-size:11px;font-weight:700;
+  background:linear-gradient(90deg,var(--p1),var(--p2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.chat-sts{font-size:10px;color:var(--p4);display:flex;align-items:center;gap:4px;margin-top:2px;}
+.chat-sts::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--p4);animation:pulse 2s infinite;}
+#chatMsgs{padding:14px;min-height:170px;max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+#chatMsgs::-webkit-scrollbar{width:3px;}
+#chatMsgs::-webkit-scrollbar-thumb{background:rgba(131,56,236,0.3);border-radius:2px;}
+.mrow{display:flex;}.mrow.user{justify-content:flex-end;}
+.bbl{max-width:82%;padding:9px 13px;font-size:12px;line-height:1.55;border-radius:12px;}
+.mrow.ai .bbl{background:rgba(131,56,236,0.15);border:1px solid rgba(131,56,236,0.25);color:#d4c8ff;border-radius:4px 12px 12px 12px;}
+.mrow.user .bbl{background:linear-gradient(135deg,rgba(255,0,110,0.28),rgba(131,56,236,0.28));border:1px solid rgba(255,0,110,0.3);color:#fff;border-radius:12px 4px 12px 12px;}
+.typing-row{display:flex;}
+.typing{display:flex;gap:4px;padding:10px 13px;border-radius:4px 12px 12px 12px;
+  background:rgba(131,56,236,0.15);border:1px solid rgba(131,56,236,0.25);width:fit-content;}
+.typing span{width:5px;height:5px;border-radius:50%;background:var(--p2);animation:td 1.2s infinite;}
+.typing span:nth-child(2){animation-delay:.2s;}.typing span:nth-child(3){animation-delay:.4s;}
+@keyframes td{0%,80%,100%{opacity:.2;transform:scale(.8);}40%{opacity:1;transform:scale(1);}}
+.chat-inp-row{display:flex;border-top:1px solid rgba(131,56,236,0.2);}
+#chatInput{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--font);font-size:12px;padding:12px 14px;}
+#chatInput::placeholder{color:rgba(240,238,255,0.22);}
+#chatSend{background:linear-gradient(135deg,var(--p1),var(--p2));border:none;padding:0 18px;cursor:pointer;font-size:16px;color:#fff;transition:opacity .2s;}
+#chatSend:hover{opacity:.85;}
+
+/* STATS */
+.stats-strip{position:relative;z-index:2;padding:40px 5%;
+  border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);}
+.stats-inner{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center;}
+.sc{padding:24px 16px;border-radius:16px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);transition:transform .2s;}
+.sc:hover{transform:translateY(-4px);}
+.sc:nth-child(1){border-color:rgba(255,0,110,0.2);}
+.sc:nth-child(2){border-color:rgba(131,56,236,0.2);}
+.sc:nth-child(3){border-color:rgba(58,134,255,0.2);}
+.sc:nth-child(4){border-color:rgba(6,255,165,0.2);}
+.sn{font-family:var(--display);font-size:30px;font-weight:900;margin-bottom:6px;}
+.sc:nth-child(1) .sn{color:var(--p1);}
+.sc:nth-child(2) .sn{color:#b98fff;}
+.sc:nth-child(3) .sn{color:var(--p3);}
+.sc:nth-child(4) .sn{color:var(--p4);}
+.sl{font-size:12px;color:var(--muted);font-weight:500;}
+.snt{font-size:10px;margin-top:4px;opacity:.6;}
+.sc:nth-child(1) .snt{color:var(--p1);}
+.sc:nth-child(2) .snt{color:#b98fff;}
+.sc:nth-child(3) .snt{color:var(--p3);}
+.sc:nth-child(4) .snt{color:var(--p4);}
+
+/* HOME SECTIONS */
+.hsec{position:relative;z-index:2;padding:88px 5%;}
+.si{max-width:1200px;margin:0 auto;}
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.how-card{border-radius:16px;padding:32px 26px;border:1px solid rgba(255,255,255,0.06);
+  background:rgba(255,255,255,0.02);position:relative;overflow:hidden;transition:transform .25s,border-color .25s;}
+.how-card:hover{transform:translateY(-5px);}
+.how-card:nth-child(1){border-color:rgba(255,0,110,0.15);}
+.how-card:nth-child(1):hover{border-color:rgba(255,0,110,0.4);}
+.how-card:nth-child(2){border-color:rgba(131,56,236,0.15);}
+.how-card:nth-child(2):hover{border-color:rgba(131,56,236,0.4);}
+.how-card:nth-child(3){border-color:rgba(58,134,255,0.15);}
+.how-card:nth-child(3):hover{border-color:rgba(58,134,255,0.4);}
+.how-num{font-family:var(--display);font-size:42px;font-weight:900;opacity:.1;margin-bottom:14px;}
+.how-card:nth-child(1) .how-num{color:var(--p1);}
+.how-card:nth-child(2) .how-num{color:var(--p2);}
+.how-card:nth-child(3) .how-num{color:var(--p3);}
+.how-icon{font-size:32px;margin-bottom:14px;}
+.how-card h3{font-family:var(--display);font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:12px;}
+.how-card:nth-child(1) h3{color:var(--p1);}
+.how-card:nth-child(2) h3{color:#b98fff;}
+.how-card:nth-child(3) h3{color:var(--p3);}
+.how-card p{font-size:13px;color:var(--muted);line-height:1.75;}
+.alt-bg{background:rgba(255,255,255,0.02);border-top:1px solid rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.04);}
+.ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px;}
+.ba{border-radius:16px;padding:30px 26px;}
+.ba.b{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);}
+.ba.a{background:rgba(6,255,165,0.05);border:1px solid rgba(6,255,165,0.2);}
+.ba-lbl{font-family:var(--display);font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:18px;}
+.ba.b .ba-lbl{color:#f87171;}.ba.a .ba-lbl{color:var(--p4);}
+.ba-item{display:flex;gap:10px;margin-bottom:12px;font-size:13px;color:var(--muted);line-height:1.5;}
+.ba-arr{flex-shrink:0;font-weight:700;}
+.ba.b .ba-arr{color:#f87171;}.ba.a .ba-arr{color:var(--p4);}
+.res-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.res-card{border-radius:14px;padding:24px 20px;display:flex;gap:14px;align-items:flex-start;
+  border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);transition:transform .2s;}
+.res-card:hover{transform:translateY(-3px);}
+.res-card:nth-child(1){border-color:rgba(255,190,11,0.2);}
+.res-card:nth-child(2){border-color:rgba(131,56,236,0.2);}
+.res-card:nth-child(3){border-color:rgba(58,134,255,0.2);}
+.res-card:nth-child(4){border-color:rgba(6,255,165,0.2);}
+.res-icon{font-size:28px;flex-shrink:0;}
+.res-card h4{font-family:var(--display);font-size:11px;font-weight:700;margin-bottom:8px;}
+.res-card:nth-child(1) h4{color:var(--p5);}
+.res-card:nth-child(2) h4{color:#b98fff;}
+.res-card:nth-child(3) h4{color:var(--p3);}
+.res-card:nth-child(4) h4{color:var(--p4);}
+.res-card p{font-size:13px;color:var(--muted);line-height:1.65;}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.feat{border-radius:16px;padding:28px 22px;border:1px solid rgba(255,255,255,0.06);
+  background:rgba(255,255,255,0.02);transition:transform .25s,border-color .25s;position:relative;}
+.feat:hover{transform:translateY(-5px);}
+.feat:nth-child(1){border-color:rgba(255,0,110,0.15);}.feat:nth-child(1):hover{border-color:rgba(255,0,110,0.35);}
+.feat:nth-child(2){border-color:rgba(131,56,236,0.15);}.feat:nth-child(2):hover{border-color:rgba(131,56,236,0.35);}
+.feat:nth-child(3){border-color:rgba(58,134,255,0.15);}.feat:nth-child(3):hover{border-color:rgba(58,134,255,0.35);}
+.feat:nth-child(4){border-color:rgba(6,255,165,0.15);}.feat:nth-child(4):hover{border-color:rgba(6,255,165,0.35);}
+.feat:nth-child(5){border-color:rgba(255,190,11,0.15);}.feat:nth-child(5):hover{border-color:rgba(255,190,11,0.35);}
+.feat:nth-child(6){border-color:rgba(251,86,7,0.15);}.feat:nth-child(6):hover{border-color:rgba(251,86,7,0.35);}
+.feat-n{position:absolute;top:14px;right:16px;font-family:var(--display);font-size:36px;font-weight:900;opacity:.05;color:var(--text);}
+.feat-icon{font-size:28px;margin-bottom:12px;}
+.feat h3{font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:9px;}
+.feat:nth-child(1) h3{color:var(--p1);}
+.feat:nth-child(2) h3{color:#b98fff;}
+.feat:nth-child(3) h3{color:var(--p3);}
+.feat:nth-child(4) h3{color:var(--p4);}
+.feat:nth-child(5) h3{color:var(--p5);}
+.feat:nth-child(6) h3{color:var(--p6);}
+.feat p{font-size:13px;color:var(--muted);line-height:1.75;}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.tcard{border-radius:16px;padding:26px 22px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);transition:transform .2s;}
+.tcard:hover{transform:translateY(-4px);}
+.tcard:nth-child(1){border-color:rgba(255,0,110,0.2);}
+.tcard:nth-child(2){border-color:rgba(131,56,236,0.2);}
+.tcard:nth-child(3){border-color:rgba(58,134,255,0.2);}
+.tres{display:inline-block;font-size:10px;font-weight:700;padding:4px 12px;border-radius:100px;margin-bottom:14px;font-family:var(--display);}
+.tcard:nth-child(1) .tres{background:rgba(255,0,110,0.15);color:var(--p1);border:1px solid rgba(255,0,110,0.3);}
+.tcard:nth-child(2) .tres{background:rgba(131,56,236,0.15);color:#b98fff;border:1px solid rgba(131,56,236,0.3);}
+.tcard:nth-child(3) .tres{background:rgba(58,134,255,0.15);color:var(--p3);border:1px solid rgba(58,134,255,0.3);}
+.tq{font-size:13px;color:var(--text);line-height:1.75;margin-bottom:18px;font-style:italic;opacity:.9;}
+.tname{font-family:var(--display);font-size:12px;font-weight:700;}
+.tcard:nth-child(1) .tname{color:var(--p1);}
+.tcard:nth-child(2) .tname{color:#b98fff;}
+.tcard:nth-child(3) .tname{color:var(--p3);}
+.trole{font-size:11px;color:var(--muted);margin-top:4px;}
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.plan{border-radius:20px;padding:36px 28px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);position:relative;transition:transform .25s;}
+.plan:hover{transform:translateY(-5px);}
+.plan.pop{border-color:rgba(131,56,236,0.5);background:rgba(131,56,236,0.07);}
+.pbadge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;
+  font-family:var(--display);font-size:9px;letter-spacing:2px;padding:4px 16px;border-radius:100px;font-weight:700;white-space:nowrap;}
+.pname{font-family:var(--display);font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;}
+.pprice{font-family:var(--display);font-size:42px;font-weight:900;margin-bottom:6px;line-height:1;}
+.plan:nth-child(1) .pprice{color:var(--p3);}
+.plan.pop .pprice{background:linear-gradient(135deg,var(--p1),var(--p2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.plan:nth-child(3) .pprice{color:var(--p4);}
+.pprice sub{font-size:16px;font-weight:400;color:var(--muted);-webkit-text-fill-color:var(--muted);}
+.pbill{font-size:11px;color:var(--muted);margin-bottom:22px;}
+.pdiv{height:1px;background:rgba(255,255,255,0.07);margin-bottom:18px;}
+.pf{font-size:13px;color:var(--muted);margin-bottom:11px;display:flex;gap:10px;align-items:flex-start;}
+.pfd{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.plan:nth-child(1) .pfd{background:var(--p3);}
+.plan.pop .pfd{background:var(--p1);}
+.plan:nth-child(3) .pfd{background:var(--p4);}
+.pbtn{display:block;width:100%;margin-top:24px;padding:13px;text-align:center;cursor:pointer;
+  font-family:var(--display);font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  border:none;transition:all .25s;text-decoration:none;border-radius:10px;}
+.pbtn.blue{background:rgba(58,134,255,0.18);color:var(--p3);border:1px solid rgba(58,134,255,0.3);}
+.pbtn.blue:hover{background:var(--p3);color:#fff;}
+.pbtn.grad{background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;box-shadow:0 0 22px rgba(255,0,110,0.4);}
+.pbtn.grad:hover{box-shadow:0 0 38px rgba(255,0,110,0.6);transform:translateY(-2px);}
+.pbtn.green{background:rgba(6,255,165,0.1);color:var(--p4);border:1px solid rgba(6,255,165,0.3);}
+.pbtn.green:hover{background:var(--p4);color:var(--bg);}
+.faq-w{max-width:720px;}
+.fitem{border-bottom:1px solid rgba(255,255,255,0.06);}
+.fq{width:100%;background:transparent;border:none;color:var(--text);font-family:var(--font);
+  font-size:14px;font-weight:600;text-align:left;padding:20px 0;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;gap:16px;transition:color .2s;}
+.fq:hover{color:var(--p2);}
+.fchev{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(131,56,236,0.12);border:1px solid rgba(131,56,236,0.22);
+  color:#b98fff;font-style:normal;font-size:12px;flex-shrink:0;transition:transform .25s,background .2s;}
+.fitem.open .fchev{transform:rotate(180deg);background:rgba(131,56,236,0.28);}
+.fa{font-size:14px;color:var(--muted);line-height:1.85;padding-bottom:20px;display:none;}
+.fitem.open .fa{display:block;}
+.cta-sec{position:relative;z-index:2;text-align:center;padding:100px 5%;overflow:hidden;}
+.cta-blob{position:absolute;width:500px;height:500px;border-radius:50%;
+  background:conic-gradient(var(--p1),var(--p2),var(--p3),var(--p4),var(--p1));
+  filter:blur(80px);opacity:.1;top:50%;left:50%;
+  transform:translate(-50%,-50%);animation:spin2 6s linear infinite;}
+@keyframes spin2{to{transform:translate(-50%,-50%) rotate(360deg);}}
+.cta-sec h2{font-family:var(--display);font-size:clamp(22px,3.5vw,44px);font-weight:900;letter-spacing:-0.5px;margin-bottom:18px;position:relative;}
+.cta-sec p{font-size:15px;color:var(--muted);max-width:500px;margin:0 auto 40px;line-height:1.85;position:relative;}
+.cta-acts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative;}
+.cta-trust{margin-top:22px;font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:2px;font-family:var(--display);position:relative;}
+
+/* ═══════════════════════════════
+   CONTACT PAGE
+═══════════════════════════════ */
+.contact-wrap{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding:72px 5% 80px;}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;}
+.form-card{border-radius:20px;border:1px solid rgba(131,56,236,0.25);background:rgba(131,56,236,0.05);padding:36px 32px;}
+.form-ttl{font-family:var(--display);font-size:10px;letter-spacing:3px;color:var(--p2);
+  text-transform:uppercase;margin-bottom:28px;display:flex;align-items:center;gap:8px;}
+.form-ttl::before{content:'';width:20px;height:2px;background:linear-gradient(90deg,var(--p1),var(--p2));}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--muted);
+  letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;font-family:var(--display);}
+.field input,.field select,.field textarea{width:100%;background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.1);color:var(--text);font-family:var(--font);
+  font-size:14px;padding:12px 15px;outline:none;transition:border-color .2s;border-radius:10px;-webkit-appearance:none;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--p2);}
+.field input::placeholder,.field textarea::placeholder{color:rgba(240,238,255,0.18);}
+.field select option{background:#0e0c1e;color:var(--text);}
+.field textarea{resize:vertical;min-height:85px;line-height:1.6;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.submit-btn{width:100%;background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;
+  border:none;padding:14px;font-family:var(--display);font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;font-weight:700;cursor:pointer;margin-top:8px;border-radius:10px;
+  transition:all .25s;box-shadow:0 0 22px rgba(255,0,110,0.35);}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 0 38px rgba(255,0,110,0.55);}
+.submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.form-note{font-size:11px;color:var(--muted);margin-top:12px;text-align:center;line-height:1.6;}
+.success-box{display:none;background:rgba(6,255,165,0.07);border:1px solid rgba(6,255,165,0.25);
+  border-radius:14px;padding:28px;text-align:center;margin-top:20px;}
+.success-box h3{font-family:var(--display);color:var(--p4);font-size:14px;margin-bottom:8px;}
+.success-box p{font-size:13px;color:var(--muted);}
+.info-stack{display:flex;flex-direction:column;gap:16px;}
+.info-card{border-radius:16px;padding:22px 20px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);}
+.info-card:nth-child(1){border-color:rgba(255,0,110,0.2);}
+.info-card:nth-child(2){border-color:rgba(131,56,236,0.2);}
+.info-card:nth-child(3){border-color:rgba(58,134,255,0.2);}
+.ititle{font-family:var(--display);font-size:9px;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;font-weight:700;}
+.info-card:nth-child(1) .ititle{color:var(--p1);}
+.info-card:nth-child(2) .ititle{color:#b98fff;}
+.info-card:nth-child(3) .ititle{color:var(--p3);}
+.iitem{display:flex;align-items:flex-start;gap:10px;margin-bottom:11px;font-size:13px;color:var(--muted);line-height:1.5;}
+.iitem strong{color:var(--text);display:block;font-size:12px;margin-bottom:1px;font-weight:600;}
+.tbadges{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px;}
+.tbadge{font-family:var(--display);font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:100px;}
+.tbadge.pink{color:var(--p1);background:rgba(255,0,110,0.1);border:1px solid rgba(255,0,110,0.25);}
+.tbadge.purple{color:#b98fff;background:rgba(131,56,236,0.1);border:1px solid rgba(131,56,236,0.25);}
+.tbadge.green{color:var(--p4);background:rgba(6,255,165,0.07);border:1px solid rgba(6,255,165,0.25);}
+
+/* ═══════════════════════════════
+   DEMO PAGE
+═══════════════════════════════ */
+.demo-layout{position:relative;z-index:2;display:grid;grid-template-columns:260px 1fr;height:calc(100vh - 68px);}
+.demo-sb{border-right:1px solid rgba(131,56,236,0.18);background:rgba(131,56,236,0.02);display:flex;flex-direction:column;overflow-y:auto;}
+.dsb-sec{padding:16px 14px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.dsb-lbl{font-family:var(--display);font-size:8px;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;color:var(--p2);}
+.pb{width:100%;background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);
+  font-family:var(--font);font-size:12px;padding:9px 11px;margin-bottom:6px;cursor:pointer;
+  text-align:left;border-radius:10px;transition:all .2s;display:flex;align-items:center;gap:8px;}
+.pb:hover{border-color:rgba(131,56,236,0.3);color:var(--text);}
+.pb.act{border-color:var(--p2);color:var(--text);background:rgba(131,56,236,0.1);}
+.pb-ic{font-size:15px;}
+.ch-row{display:flex;gap:5px;flex-wrap:wrap;}
+.chb{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);
+  font-family:var(--display);font-size:8px;letter-spacing:1px;padding:6px 9px;cursor:pointer;
+  border-radius:8px;transition:all .2s;text-transform:uppercase;}
+.chb:hover{border-color:rgba(131,56,236,0.3);color:var(--text);}
+.chb.act{border-color:var(--p2);color:var(--p2);background:rgba(131,56,236,0.1);}
+.sq-note{font-size:11px;color:var(--muted);margin-bottom:9px;line-height:1.5;}
+.sqb{width:100%;background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);
+  font-family:var(--font);font-size:12px;padding:8px 10px;margin-bottom:5px;cursor:pointer;
+  text-align:left;border-radius:8px;transition:all .2s;}
+.sqb:hover{border-color:var(--p2);color:var(--p2);}
+.rst-btn{width:100%;background:transparent;border:1px solid rgba(239,68,68,0.2);
+  color:rgba(248,113,113,0.6);font-family:var(--display);font-size:8px;letter-spacing:2px;
+  padding:9px;cursor:pointer;text-transform:uppercase;border-radius:8px;transition:all .2s;}
+.rst-btn:hover{border-color:rgba(239,68,68,0.5);color:#f87171;}
+.demo-chat{display:flex;flex-direction:column;height:100%;}
+.demo-hdr{padding:14px 22px;border-bottom:1px solid rgba(255,255,255,0.05);
+  background:rgba(131,56,236,0.04);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.da-info{display:flex;align-items:center;gap:12px;}
+.da-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--p1),var(--p2));display:flex;align-items:center;justify-content:center;font-size:18px;}
+.da-name{font-family:var(--display);font-size:12px;font-weight:700;
+  background:linear-gradient(90deg,var(--p1),var(--p2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.da-sts{font-size:11px;color:var(--p4);display:flex;align-items:center;gap:4px;margin-top:2px;}
+.da-sts::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--p4);animation:pulse 2s infinite;}
+.ch-tag{font-family:var(--display);font-size:9px;letter-spacing:2px;color:var(--p2);
+  border:1px solid rgba(131,56,236,0.3);padding:4px 12px;border-radius:100px;text-transform:uppercase;}
+.demo-msgs{flex:1;overflow-y:auto;padding:18px 22px;display:flex;flex-direction:column;gap:10px;}
+.demo-msgs::-webkit-scrollbar{width:4px;}
+.demo-msgs::-webkit-scrollbar-thumb{background:rgba(131,56,236,0.3);border-radius:2px;}
+.drow{display:flex;gap:9px;}
+.drow.user{flex-direction:row-reverse;}
+.dav{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.drow.ai .dav{background:linear-gradient(135deg,var(--p1),var(--p2));}
+.drow.user .dav{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:10px;}
+.dbbl{max-width:72%;padding:10px 14px;font-size:13px;line-height:1.65;border-radius:14px;}
+.drow.ai .dbbl{background:rgba(131,56,236,0.12);border:1px solid rgba(131,56,236,0.2);color:#d4c8ff;border-radius:4px 14px 14px 14px;}
+.drow.user .dbbl{background:linear-gradient(135deg,rgba(255,0,110,0.2),rgba(131,56,236,0.2));border:1px solid rgba(255,0,110,0.25);color:#fff;border-radius:14px 4px 14px 14px;}
+.dtm{font-size:9px;color:var(--muted);margin-top:3px;opacity:.5;font-family:var(--display);}
+.dtyping-w{display:flex;gap:9px;}
+.dtyping{display:flex;gap:4px;padding:10px 14px;border-radius:4px 14px 14px 14px;background:rgba(131,56,236,0.12);border:1px solid rgba(131,56,236,0.2);width:fit-content;}
+.dtyping span{width:5px;height:5px;border-radius:50%;background:var(--p2);animation:td 1.2s infinite;}
+.dtyping span:nth-child(2){animation-delay:.2s;}.dtyping span:nth-child(3){animation-delay:.4s;}
+.demo-inp{padding:14px 22px;border-top:1px solid rgba(255,255,255,0.05);background:rgba(131,56,236,0.02);flex-shrink:0;}
+.dinp-row{display:flex;gap:10px;}
+.dinp{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(131,56,236,0.2);color:var(--text);
+  font-family:var(--font);font-size:13px;padding:12px 15px;outline:none;transition:border-color .2s;border-radius:10px;}
+.dinp:focus{border-color:var(--p2);}
+.dinp::placeholder{color:rgba(240,238,255,0.18);}
+.dsend{background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;border:none;padding:12px 20px;
+  font-family:var(--display);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:1px;
+  border-radius:10px;transition:all .2s;box-shadow:0 0 14px rgba(255,0,110,0.3);}
+.dsend:hover{transform:translateY(-1px);box-shadow:0 0 26px rgba(255,0,110,0.5);}
+.dinp-note{font-size:11px;color:var(--muted);margin-top:7px;text-align:center;}
+
+/* ═══════════════════════════════
+   ABOUT PAGE
+═══════════════════════════════ */
+.about-hero{position:relative;z-index:2;max-width:820px;margin:0 auto;padding:80px 5% 60px;text-align:center;}
+.about-body{position:relative;z-index:2;max-width:840px;margin:0 auto;padding:0 5% 64px;}
+.sb{margin-bottom:48px;}
+.sb-ey{font-family:var(--display);font-size:9px;letter-spacing:4px;text-transform:uppercase;margin-bottom:12px;color:var(--p2);}
+.sb h2{font-family:var(--display);font-size:clamp(18px,2.5vw,28px);font-weight:900;letter-spacing:-0.5px;margin-bottom:14px;}
+.sb p{font-size:15px;color:var(--muted);line-height:1.9;margin-bottom:12px;}
+.sb p strong{color:var(--text);}
+.adiv{height:1px;background:linear-gradient(90deg,transparent,rgba(131,56,236,0.3),transparent);margin:44px 0;}
+.qblock{border-left:3px solid var(--p2);padding:20px 26px;background:rgba(131,56,236,0.06);border-radius:0 12px 12px 0;margin:28px 0;}
+.qblock p{font-size:17px;color:var(--text);line-height:1.75;font-style:italic;}
+.qblock cite{display:block;margin-top:10px;font-size:12px;color:var(--p2);font-style:normal;font-family:var(--display);}
+.about-vals{position:relative;z-index:2;padding:72px 5%;background:rgba(255,255,255,0.02);border-top:1px solid rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.04);}
+.avi{max-width:1200px;margin:0 auto;}
+.val-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.val{border-radius:16px;padding:26px 22px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);transition:transform .2s;}
+.val:hover{transform:translateY(-4px);}
+.val:nth-child(1){border-color:rgba(255,0,110,0.15);}
+.val:nth-child(2){border-color:rgba(131,56,236,0.15);}
+.val:nth-child(3){border-color:rgba(58,134,255,0.15);}
+.val:nth-child(4){border-color:rgba(6,255,165,0.15);}
+.val:nth-child(5){border-color:rgba(255,190,11,0.15);}
+.val:nth-child(6){border-color:rgba(251,86,7,0.15);}
+.val-ic{font-size:28px;margin-bottom:12px;}
+.val h3{font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:9px;}
+.val:nth-child(1) h3{color:var(--p1);}
+.val:nth-child(2) h3{color:#b98fff;}
+.val:nth-child(3) h3{color:var(--p3);}
+.val:nth-child(4) h3{color:var(--p4);}
+.val:nth-child(5) h3{color:var(--p5);}
+.val:nth-child(6) h3{color:var(--p6);}
+.val p{font-size:13px;color:var(--muted);line-height:1.75;}
+.about-nums{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:72px 5%;}
+.num-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+.nc{border-radius:16px;padding:26px 18px;text-align:center;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);transition:transform .2s;}
+.nc:hover{transform:translateY(-4px);}
+.nc:nth-child(1){border-color:rgba(255,0,110,0.2);}
+.nc:nth-child(2){border-color:rgba(131,56,236,0.2);}
+.nc:nth-child(3){border-color:rgba(58,134,255,0.2);}
+.nc:nth-child(4){border-color:rgba(6,255,165,0.2);}
+.nb{font-family:var(--display);font-size:34px;font-weight:900;margin-bottom:7px;}
+.nc:nth-child(1) .nb{color:var(--p1);}
+.nc:nth-child(2) .nb{color:#b98fff;}
+.nc:nth-child(3) .nb{color:var(--p3);}
+.nc:nth-child(4) .nb{color:var(--p4);}
+.nl{font-size:12px;color:var(--muted);font-weight:500;}
+
+/* FOOTER */
+footer{position:relative;z-index:2;border-top:1px solid rgba(255,255,255,0.05);
+  padding:28px 5%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+.flogo{font-family:var(--display);font-size:14px;font-weight:900;cursor:pointer;
+  background:linear-gradient(90deg,var(--p1),var(--p2),var(--p3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.flinks{display:flex;gap:20px;}
+.flinks a{color:var(--muted);text-decoration:none;font-size:13px;cursor:pointer;transition:color .2s;}
+.flinks a:hover{color:var(--text);}
+.fcopy{font-size:11px;color:rgba(240,238,255,0.22);}
+
+/* RESPONSIVE */
+@media(max-width:960px){
+  .hero{grid-template-columns:1fr;padding:56px 5% 48px;}
+  .robot-scene{display:none;}
+  .how-grid,.feat-grid,.plan-grid,.testi-grid{grid-template-columns:1fr;}
+  .ba-grid,.res-grid{grid-template-columns:1fr;}
+  .stats-inner{grid-template-columns:repeat(2,1fr);}
+  .nav-links{display:none;}
+  .nav-cta{display:none;}
+  .hamburger{display:flex;}
+  .hsec{padding:60px 5%;}
+  .contact-grid{grid-template-columns:1fr;}
+  .frow{grid-template-columns:1fr;}
+  .demo-layout{grid-template-columns:1fr;height:auto;}
+  .demo-sb{display:none;}
+  .demo-chat{height:calc(100vh - 68px);}
+  .val-grid{grid-template-columns:1fr;}
+  .num-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:480px){
+  .hero-pills{gap:6px;}
+  footer{flex-direction:column;text-align:center;}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;}
+}
+</style>
+</head>
+<body>
+
+<div class="aurora">
+  <div class="ab ab1"></div><div class="ab ab2"></div>
+  <div class="ab ab3"></div><div class="ab ab4"></div>
+</div>
+<div class="grid-bg"></div>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo" onclick="goTo('home')">SupportFlow AI</span>
+  <ul class="nav-links">
+    <li><a onclick="goTo('home');scrollTo('#how')">How It Works</a></li>
+    <li><a onclick="goTo('home');scrollTo('#features')">Features</a></li>
+    <li><a onclick="goTo('home');scrollTo('#pricing')">Pricing</a></li>
+    <li><a onclick="goTo('about')">About</a></li>
+    <li><a onclick="goTo('demo')">Demo</a></li>
+  </ul>
+  <button class="nav-cta" onclick="goTo('contact')">Book Free Demo</button>
+  <button class="hamburger" id="ham" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mob-menu" id="mobMenu">
+  <a onclick="goTo('home');closeMob()">How It Works</a>
+  <a onclick="goTo('home');closeMob()">Features</a>
+  <a onclick="goTo('home');closeMob()">Pricing</a>
+  <a onclick="goTo('about');closeMob()">About</a>
+  <a onclick="goTo('demo');closeMob()">Live Demo</a>
+  <a onclick="goTo('contact');closeMob()" class="mob-cta">Book Free Demo &rarr;</a>
+</div>
+
+<!-- ═══════════════════════════════
+     HOME PAGE
+═══════════════════════════════ -->
+<div class="page active" id="pg-home">
+
+<div class="hero">
+  <div>
+    <div class="hero-badge"><div class="pulse-dot"></div> SF-01 Online &bull; All Systems Go</div>
+    <h1 class="fi">Your AI<br><span class="grad-text">Support Agent</span><br>Never Sleeps.</h1>
+    <p class="hero-sub fi">We build and deploy custom AI agents trained on your business &mdash; answering customers, qualifying leads, and handing off to your team only when it counts. 24/7, across every channel.</p>
+    <div class="hero-btns fi">
+      <button class="btn-grad" onclick="goTo('contact')">&#128640; Book Free Demo</button>
+      <button class="btn-ghost" onclick="goTo('demo')">&#9654; Try Live Demo</button>
+    </div>
+    <div class="hero-pills fi">
+      <span class="pill pill-pink">&#9889; &lt;30s Response</span>
+      <span class="pill pill-purple">&#127775; 50%+ Fewer Tickets</span>
+      <span class="pill pill-blue">&#128197; Live in 7 Days</span>
+      <span class="pill pill-green">&#10003; No Contracts</span>
+    </div>
+  </div>
+
+  <div class="robot-scene">
+    <div class="robot-glow-ring"></div>
+    <div class="robot-wrap">
+      <svg width="240" height="300" viewBox="0 0 240 300" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="bG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8338ec"/><stop offset="50%" stop-color="#3a86ff"/><stop offset="100%" stop-color="#06ffa5"/></linearGradient>
+          <linearGradient id="hG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff006e"/><stop offset="100%" stop-color="#8338ec"/></linearGradient>
+          <linearGradient id="lL" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a86ff"/><stop offset="100%" stop-color="#8338ec"/></linearGradient>
+          <linearGradient id="lR" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#06ffa5"/><stop offset="100%" stop-color="#3a86ff"/></linearGradient>
+          <linearGradient id="aL" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff006e"/><stop offset="100%" stop-color="#ffbe0b"/></linearGradient>
+          <linearGradient id="aR" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#06ffa5"/><stop offset="100%" stop-color="#3a86ff"/></linearGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <line x1="120" y1="6" x2="120" y2="36" stroke="#ff006e" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="120" cy="5" r="6" fill="none" stroke="#ff006e" stroke-width="2"><animate attributeName="r" values="6;12;6" dur="1.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="1.8s" repeatCount="indefinite"/></circle>
+        <circle cx="120" cy="5" r="4" fill="#ff006e" filter="url(#glow)"/>
+        <circle cx="108" cy="12" r="2" fill="#ffbe0b" opacity="0.7"><animate attributeName="opacity" values="0.7;0;0.7" dur="1.2s" repeatCount="indefinite"/></circle>
+        <circle cx="132" cy="12" r="2" fill="#06ffa5" opacity="0.7"><animate attributeName="opacity" values="0.7;0;0.7" dur="1.2s" begin="0.6s" repeatCount="indefinite"/></circle>
+        <rect x="60" y="36" width="120" height="86" rx="18" fill="url(#hG)" opacity="0.14"/>
+        <rect x="60" y="36" width="120" height="86" rx="18" fill="none" stroke="url(#hG)" stroke-width="2.5"/>
+        <rect x="68" y="44" width="40" height="6" rx="3" fill="white" opacity="0.07"/>
+        <rect x="74" y="54" width="34" height="22" rx="8" fill="#0a0820"><animate attributeName="fill" values="#0a0820;#ff006e;#8338ec;#0a0820" dur="4s" repeatCount="indefinite"/></rect>
+        <rect x="74" y="54" width="34" height="22" rx="8" fill="none" stroke="#ff006e" stroke-width="1.5"><animate attributeName="stroke" values="#ff006e;#ffbe0b;#06ffa5;#ff006e" dur="4s" repeatCount="indefinite"/></rect>
+        <circle cx="91" cy="65" r="7" fill="#ff006e" filter="url(#glow)"><animate attributeName="fill" values="#ff006e;#ffbe0b;#06ffa5;#ff006e" dur="4s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="translate" values="0,0;3,0;0,0;-3,0;0,0" dur="5s" repeatCount="indefinite"/></circle>
+        <circle cx="91" cy="65" r="3" fill="white" opacity="0.8"><animateTransform attributeName="transform" type="translate" values="0,0;3,0;0,0;-3,0;0,0" dur="5s" repeatCount="indefinite"/></circle>
+        <rect x="132" y="54" width="34" height="22" rx="8" fill="#0a0820"><animate attributeName="fill" values="#0a0820;#3a86ff;#06ffa5;#0a0820" dur="4s" begin="0.5s" repeatCount="indefinite"/></rect>
+        <rect x="132" y="54" width="34" height="22" rx="8" fill="none" stroke="#3a86ff" stroke-width="1.5"><animate attributeName="stroke" values="#3a86ff;#06ffa5;#8338ec;#3a86ff" dur="4s" begin="0.5s" repeatCount="indefinite"/></rect>
+        <circle cx="149" cy="65" r="7" fill="#3a86ff" filter="url(#glow)"><animate attributeName="fill" values="#3a86ff;#06ffa5;#8338ec;#3a86ff" dur="4s" begin="0.5s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="translate" values="0,0;3,0;0,0;-3,0;0,0" dur="5s" repeatCount="indefinite"/></circle>
+        <circle cx="149" cy="65" r="3" fill="white" opacity="0.8"><animateTransform attributeName="transform" type="translate" values="0,0;3,0;0,0;-3,0;0,0" dur="5s" repeatCount="indefinite"/></circle>
+        <rect x="80" y="92" width="80" height="18" rx="9" fill="#0a0820" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        <rect x="86" y="96" width="8" height="10" rx="4" fill="#ff006e"><animate attributeName="opacity" values="1;0.2;1" dur="0.4s" repeatCount="indefinite"/></rect>
+        <rect x="98" y="96" width="8" height="10" rx="4" fill="#ffbe0b"><animate attributeName="opacity" values="1;0.2;1" dur="0.4s" begin="0.1s" repeatCount="indefinite"/></rect>
+        <rect x="110" y="96" width="8" height="10" rx="4" fill="#06ffa5"><animate attributeName="opacity" values="1;0.2;1" dur="0.4s" begin="0.2s" repeatCount="indefinite"/></rect>
+        <rect x="122" y="96" width="8" height="10" rx="4" fill="#3a86ff"><animate attributeName="opacity" values="1;0.2;1" dur="0.4s" begin="0.07s" repeatCount="indefinite"/></rect>
+        <rect x="134" y="96" width="8" height="10" rx="4" fill="#8338ec"><animate attributeName="opacity" values="1;0.2;1" dur="0.4s" begin="0.15s" repeatCount="indefinite"/></rect>
+        <rect x="146" y="96" width="8" height="10" rx="4" fill="#ff006e"><animate attributeName="opacity" values="1;0.2;1" dur="0.4s" begin="0.3s" repeatCount="indefinite"/></rect>
+        <rect x="106" y="122" width="28" height="16" rx="6" fill="url(#bG)" opacity="0.4"/>
+        <rect x="106" y="122" width="28" height="16" rx="6" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+        <rect x="44" y="138" width="152" height="110" rx="20" fill="url(#bG)" opacity="0.1"/>
+        <rect x="44" y="138" width="152" height="110" rx="20" fill="none" stroke="url(#bG)" stroke-width="2.5"/>
+        <rect x="64" y="154" width="112" height="68" rx="10" fill="#040212" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+        <rect x="72" y="162" width="60" height="3" rx="2" fill="#ff006e" opacity="0.6"/>
+        <rect x="72" y="170" width="45" height="3" rx="2" fill="#8338ec" opacity="0.6"/>
+        <rect x="72" y="178" width="55" height="3" rx="2" fill="#3a86ff" opacity="0.6"/>
+        <rect x="72" y="186" width="35" height="3" rx="2" fill="#06ffa5" opacity="0.6"/>
+        <rect x="72" y="194" width="50" height="3" rx="2" fill="#ffbe0b" opacity="0.6"/>
+        <circle cx="148" cy="180" r="18" fill="none" stroke="url(#bG)" stroke-width="1.5" opacity="0.5"><animate attributeName="r" values="18;24;18" dur="2.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0.1;0.5" dur="2.5s" repeatCount="indefinite"/></circle>
+        <circle cx="148" cy="180" r="12" fill="none" stroke="url(#bG)" stroke-width="1" opacity="0.7"/>
+        <circle cx="148" cy="180" r="6" fill="url(#bG)" filter="url(#glow)"><animate attributeName="r" values="6;8;6" dur="1.5s" repeatCount="indefinite"/></circle>
+        <circle cx="50" cy="148" r="8" fill="url(#aL)" opacity="0.6"/>
+        <circle cx="190" cy="148" r="8" fill="url(#aR)" opacity="0.6"/>
+        <rect x="10" y="140" width="36" height="80" rx="14" fill="url(#aL)" opacity="0.18"/>
+        <rect x="10" y="140" width="36" height="80" rx="14" fill="none" stroke="url(#aL)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" values="0 28 180;6 28 180;0 28 180;-6 28 180;0 28 180" dur="4s" repeatCount="indefinite"/></rect>
+        <rect x="16" y="152" width="24" height="4" rx="2" fill="#ff006e" opacity="0.6"><animateTransform attributeName="transform" type="rotate" values="0 28 180;6 28 180;0 28 180;-6 28 180;0 28 180" dur="4s" repeatCount="indefinite"/></rect>
+        <rect x="12" y="218" width="32" height="22" rx="10" fill="url(#aL)" opacity="0.28"><animateTransform attributeName="transform" type="rotate" values="0 28 180;6 28 180;0 28 180;-6 28 180;0 28 180" dur="4s" repeatCount="indefinite"/></rect>
+        <rect x="12" y="218" width="32" height="22" rx="10" fill="none" stroke="#ff006e" stroke-width="1.5"><animateTransform attributeName="transform" type="rotate" values="0 28 180;6 28 180;0 28 180;-6 28 180;0 28 180" dur="4s" repeatCount="indefinite"/></rect>
+        <rect x="194" y="140" width="36" height="80" rx="14" fill="url(#aR)" opacity="0.18"/>
+        <rect x="194" y="140" width="36" height="80" rx="14" fill="none" stroke="url(#aR)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" values="0 212 180;-6 212 180;0 212 180;6 212 180;0 212 180" dur="4s" repeatCount="indefinite"/></rect>
+        <rect x="200" y="152" width="24" height="4" rx="2" fill="#06ffa5" opacity="0.6"><animateTransform attributeName="transform" type="rotate" values="0 212 180;-6 212 180;0 212 180;6 212 180;0 212 180" dur="4s" repeatCount="indefinite"/></rect>
+        <rect x="196" y="218" width="32" height="22" rx="10" fill="url(#aR)" opacity="0.28"><animateTransform attributeName="transform" type="rotate" values="0 212 180;-6 212 180;0 212 180;6 212 180;0 212 180" dur="4s" repeatCount="indefinite"/></rect>
+        <rect x="196" y="218" width="32" height="22" rx="10" fill="none" stroke="#06ffa5" stroke-width="1.5"><animateTransform attributeName="transform" type="rotate" values="0 212 180;-6 212 180;0 212 180;6 212 180;0 212 180" dur="4s" repeatCount="indefinite"/></rect>
+        <rect x="72" y="248" width="38" height="42" rx="12" fill="url(#lL)" opacity="0.18"/>
+        <rect x="72" y="248" width="38" height="42" rx="12" fill="none" stroke="url(#lL)" stroke-width="2"/>
+        <rect x="130" y="248" width="38" height="42" rx="12" fill="url(#lR)" opacity="0.18"/>
+        <rect x="130" y="248" width="38" height="42" rx="12" fill="none" stroke="url(#lR)" stroke-width="2"/>
+        <rect x="62" y="282" width="58" height="16" rx="8" fill="url(#lL)" opacity="0.28"/>
+        <rect x="62" y="282" width="58" height="16" rx="8" fill="none" stroke="#3a86ff" stroke-width="1.5"/>
+        <rect x="120" y="282" width="58" height="16" rx="8" fill="url(#lR)" opacity="0.28"/>
+        <rect x="120" y="282" width="58" height="16" rx="8" fill="none" stroke="#06ffa5" stroke-width="1.5"/>
+        <circle cx="30" cy="80" r="3" fill="#ff006e" opacity="0.6"><animate attributeName="cy" values="80;55;80" dur="3.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0;0.6" dur="3.2s" repeatCount="indefinite"/></circle>
+        <circle cx="210" cy="100" r="2.5" fill="#06ffa5" opacity="0.5"><animate attributeName="cy" values="100;72;100" dur="2.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="2.8s" repeatCount="indefinite"/></circle>
+        <circle cx="18" cy="160" r="2" fill="#ffbe0b" opacity="0.5"><animate attributeName="cx" values="18;32;18" dur="4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="4s" repeatCount="indefinite"/></circle>
+        <circle cx="222" cy="200" r="2" fill="#8338ec" opacity="0.5"><animate attributeName="cx" values="222;208;222" dur="3.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="3.5s" repeatCount="indefinite"/></circle>
+        <rect x="155" y="20" width="62" height="30" rx="10" fill="#ff006e" opacity="0.92"/>
+        <polygon points="155,46 167,44 162,52" fill="#ff006e" opacity="0.92"/>
+        <text x="186" y="40" text-anchor="middle" font-family="Orbitron,monospace" font-size="13" font-weight="900" fill="white">Hi! &#128075;</text>
+      </svg>
+    </div>
+
+    <div class="chat-widget">
+      <div class="chat-card">
+        <div class="chat-hdr">
+          <div class="chat-av">&#129302;</div>
+          <div>
+            <div class="chat-aname">SF-01 Agent</div>
+            <div class="chat-sts">Online &bull; Replies instantly</div>
+          </div>
+        </div>
+        <div id="chatMsgs"></div>
+        <div class="chat-inp-row">
+          <input id="chatInput" placeholder="Ask me anything..." autocomplete="off"/>
+          <button id="chatSend">&#8593;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div class="sc fi"><div class="sn">50%+</div><div class="sl">Fewer Tickets</div><div class="snt">First 30 days</div></div>
+    <div class="sc fi"><div class="sn">&lt;30s</div><div class="sl">First Response</div><div class="snt">Down from hours</div></div>
+    <div class="sc fi"><div class="sn">10hrs</div><div class="sl">Saved Weekly</div><div class="snt">Back to your team</div></div>
+    <div class="sc fi"><div class="sn">7 Days</div><div class="sl">Go Live</div><div class="snt">We handle setup</div></div>
+  </div>
+</div>
+
+<!-- HOW -->
+<div class="hsec" id="how"><div class="si">
+  <div class="sec-badge sb-purple">&#9658; How It Works</div>
+  <h2 class="sec-t">Live in <span class="grad-text">one week.</span></h2>
+  <p class="sec-sub">We handle everything. You just tell us about your business once.</p>
+  <div class="how-grid">
+    <div class="how-card fi"><div class="how-num">01</div><div class="how-icon">&#128221;</div><h3>Tell Us About Your Business</h3><p>A 30-minute call is all we need. Share your FAQs, products, tone, and policies. No technical work required from you.</p></div>
+    <div class="how-card fi"><div class="how-num">02</div><div class="how-icon">&#129302;</div><h3>We Build Your Agent</h3><p>Our team trains a custom AI on your business, configures escalation rules, integrations, and handoff flows.</p></div>
+    <div class="how-card fi"><div class="how-num">03</div><div class="how-icon">&#128640;</div><h3>Go Live. We Keep It Sharp.</h3><p>Your agent launches across your channels. We monitor weekly and keep improving it as your business grows.</p></div>
+  </div>
+</div></div>
+
+<!-- RESULTS -->
+<div class="hsec alt-bg" id="results"><div class="si">
+  <div class="sec-badge sb-pink">&#128200; Real Results</div>
+  <h2 class="sec-t">What actually <span class="grad-text">changes.</span></h2>
+  <p class="sec-sub">Based on what our current clients report in the first 30 days.</p>
+  <div class="ba-grid">
+    <div class="ba b fi"><div class="ba-lbl">&#10060; Without SupportFlow</div>
+      <div class="ba-item"><span class="ba-arr">&#8594;</span>Customers wait hours and often just leave</div>
+      <div class="ba-item"><span class="ba-arr">&#8594;</span>Your team answers the same 10 questions daily</div>
+      <div class="ba-item"><span class="ba-arr">&#8594;</span>No one responds after hours &mdash; leads go cold</div>
+      <div class="ba-item"><span class="ba-arr">&#8594;</span>Backlogs pile up and quality suffers</div>
+    </div>
+    <div class="ba a fi"><div class="ba-lbl">&#10003; With SupportFlow</div>
+      <div class="ba-item"><span class="ba-arr">&#8594;</span>Answers in under 30 seconds, any time of day</div>
+      <div class="ba-item"><span class="ba-arr">&#8594;</span>Your team only handles issues that need humans</div>
+      <div class="ba-item"><span class="ba-arr">&#8594;</span>24/7 coverage with zero extra headcount</div>
+      <div class="ba-item"><span class="ba-arr">&#8594;</span>Tickets drop 50%+ from day one</div>
+    </div>
+  </div>
+  <div class="res-grid">
+    <div class="res-card fi"><div class="res-icon">&#9889;</div><div><h4>Hours &rarr; Seconds</h4><p>Response times drop from 3&ndash;8 hours to under 30 seconds on day one.</p></div></div>
+    <div class="res-card fi"><div class="res-icon">&#128202;</div><div><h4>50%+ Fewer Tickets</h4><p>The AI handles every routine question. Your team only sees real edge cases.</p></div></div>
+    <div class="res-card fi"><div class="res-icon">&#128336;</div><div><h4>10+ Hours Saved Weekly</h4><p>Time your team gets back to focus on growth, not repetitive support.</p></div></div>
+    <div class="res-card fi"><div class="res-icon">&#128200;</div><div><h4>More Leads Converted</h4><p>After-hours inquiries answered instantly. Leads qualified before you speak to them.</p></div></div>
+  </div>
+</div></div>
+
+<!-- FEATURES -->
+<div class="hsec" id="features"><div class="si">
+  <div class="sec-badge sb-blue">&#127775; What&rsquo;s Included</div>
+  <h2 class="sec-t">Every agent ships <span class="grad-text">fully loaded.</span></h2>
+  <p class="sec-sub">Configured for your business, not a generic template.</p>
+  <div class="feat-grid">
+    <div class="feat fi"><div class="feat-n">01</div><div class="feat-icon">&#129504;</div><h3>Trained on Your Business</h3><p>Products, policies, FAQs, tone, and edge cases. The agent knows your business like a well-briefed senior hire.</p></div>
+    <div class="feat fi"><div class="feat-n">02</div><div class="feat-icon">&#128241;</div><h3>Omnichannel Deployment</h3><p>Website chat, WhatsApp, Instagram DM, email, Messenger, Telegram &mdash; same agent, one inbox.</p></div>
+    <div class="feat fi"><div class="feat-n">03</div><div class="feat-icon">&#127919;</div><h3>Smart Human Handoff</h3><p>When AI can&rsquo;t answer, it collects context, creates a ticket, and hands off with full history.</p></div>
+    <div class="feat fi"><div class="feat-n">04</div><div class="feat-icon">&#128197;</div><h3>Lead Qualify &amp; Book</h3><p>Qualifies prospects and books appointments to your calendar before you say a word.</p></div>
+    <div class="feat fi"><div class="feat-n">05</div><div class="feat-icon">&#128202;</div><h3>Analytics &amp; Reporting</h3><p>See what customers ask, where they drop off, and how AI performs. Weekly insights included.</p></div>
+    <div class="feat fi"><div class="feat-n">06</div><div class="feat-icon">&#128260;</div><h3>Ongoing Optimisation</h3><p>We review performance weekly and retrain when needed. It gets smarter the longer it runs.</p></div>
+  </div>
+</div></div>
+
+<!-- TESTIMONIALS -->
+<div class="hsec alt-bg" id="clients"><div class="si">
+  <div class="sec-badge sb-green">&#128172; Client Reports</div>
+  <h2 class="sec-t">Businesses that <span class="grad-text">made the switch.</span></h2>
+  <p class="sec-sub">Real feedback. No inflated review counts.</p>
+  <div class="testi-grid">
+    <div class="tcard fi"><div class="tres">&#9889; Hours &rarr; Under 1 Min</div><p class="tq">&ldquo;We were drowning in the same questions daily. Now the AI handles them and my team focuses on closing deals.&rdquo;</p><div class="tname">James R.</div><div class="trole">Operations Manager, Retail</div></div>
+    <div class="tcard fi"><div class="tres">&#128202; 50% Fewer Tickets</div><p class="tq">&ldquo;Setup was painless. Live in a week and tickets dropped immediately. Worth every penny for the time we got back.&rdquo;</p><div class="tname">Sarah C.</div><div class="trole">Founder, E-commerce</div></div>
+    <div class="tcard fi"><div class="tres">&#128200; More Leads After Hours</div><p class="tq">&ldquo;Our WhatsApp was a black hole after 6pm. Now leads get qualified and land in my CRM ready to follow up.&rdquo;</p><div class="tname">Ahmed M.</div><div class="trole">Agency Owner, Digital</div></div>
+  </div>
+</div></div>
+
+<!-- PRICING -->
+<div class="hsec" id="pricing"><div class="si">
+  <div class="sec-badge sb-orange">&#128176; Pricing</div>
+  <h2 class="sec-t">One agent. <span class="grad-text">Flat monthly fee.</span></h2>
+  <p class="sec-sub">No contracts. No surprises. Free demo before you pay anything.</p>
+  <div class="plan-grid">
+    <div class="plan fi">
+      <div class="pname">Starter</div>
+      <div class="pprice">$49<sub>/mo</sub></div>
+      <div class="pbill">Monthly &middot; Cancel anytime</div>
+      <div class="pdiv"></div>
+      <div class="pf"><div class="pfd"></div>AI agent trained on your business</div>
+      <div class="pf"><div class="pfd"></div>1 channel (website or WhatsApp)</div>
+      <div class="pf"><div class="pfd"></div>Human handoff with full context</div>
+      <div class="pf"><div class="pfd"></div>Monthly performance report</div>
+      <div class="pf"><div class="pfd"></div>Live in 7 days</div>
+      <button class="pbtn blue" onclick="goTo('contact')">Select Plan &rarr;</button>
+    </div>
+    <div class="plan pop fi">
+      <div class="pbadge">&#127775; Most Popular</div>
+      <div class="pname">Growth</div>
+      <div class="pprice">$149<sub>/mo</sub></div>
+      <div class="pbill">Monthly &middot; Cancel anytime</div>
+      <div class="pdiv"></div>
+      <div class="pf"><div class="pfd"></div>Everything in Starter</div>
+      <div class="pf"><div class="pfd"></div>3 channels incl. WhatsApp + Instagram</div>
+      <div class="pf"><div class="pfd"></div>Lead qualification flows</div>
+      <div class="pf"><div class="pfd"></div>Calendar booking integration</div>
+      <div class="pf"><div class="pfd"></div>CRM sync + weekly calls</div>
+      <button class="pbtn grad" onclick="goTo('contact')">Deploy Now &rarr;</button>
+    </div>
+    <div class="plan fi">
+      <div class="pname">Scale</div>
+      <div class="pprice" style="font-size:30px;color:var(--p4);-webkit-text-fill-color:var(--p4)">Custom</div>
+      <div class="pbill">Volume pricing &middot; Priority SLA</div>
+      <div class="pdiv"></div>
+      <div class="pf"><div class="pfd"></div>Everything in Growth</div>
+      <div class="pf"><div class="pfd"></div>All 6 channels</div>
+      <div class="pf"><div class="pfd"></div>Multiple agents / brands</div>
+      <div class="pf"><div class="pfd"></div>Custom integrations + APIs</div>
+      <div class="pf"><div class="pfd"></div>Dedicated success manager</div>
+      <button class="pbtn green" onclick="goTo('contact')">Talk to Us &rarr;</button>
+    </div>
+  </div>
+</div></div>
+
+<!-- FAQ -->
+<div class="hsec alt-bg" id="faq"><div class="si">
+  <div class="sec-badge sb-purple">&#10067; FAQ</div>
+  <h2 class="sec-t">Common <span class="grad-text">questions.</span></h2>
+  <div class="faq-w">
+    <div class="fitem"><button class="fq">How quickly can we go live? <em class="fchev">&#9660;</em></button><div class="fa">Most businesses are live within 7 days. We handle all setup &mdash; you spend 30&ndash;60 minutes with us sharing information about your business, and we do the rest.</div></div>
+    <div class="fitem"><button class="fq">Do I need technical skills? <em class="fchev">&#9660;</em></button><div class="fa">None at all. We build and manage the agent for you. Embedding on your website takes one line of code we provide. WhatsApp setup takes 15 minutes with our guidance.</div></div>
+    <div class="fitem"><button class="fq">What if the AI doesn&rsquo;t know the answer? <em class="fchev">&#9660;</em></button><div class="fa">It collects the customer&rsquo;s details, creates a prioritised ticket with full context, and notifies your team. Nothing falls through the cracks.</div></div>
+    <div class="fitem"><button class="fq">Can I update what the AI knows? <em class="fchev">&#9660;</em></button><div class="fa">Yes, any time. Send us an update and we retrain within 24 hours. On Growth+ plans we proactively suggest improvements based on real conversations.</div></div>
+    <div class="fitem"><button class="fq">Which channels do you support? <em class="fchev">&#9660;</em></button><div class="fa">Website chat, WhatsApp Business, Instagram DM, Facebook Messenger, email (Gmail/Outlook/IMAP), and Telegram. Starter covers 1 channel, Growth covers 3.</div></div>
+    <div class="fitem"><button class="fq">Can I cancel anytime? <em class="fchev">&#9660;</em></button><div class="fa">Yes. Month-to-month, no lock-in. We&rsquo;d rather earn your business every month than trap you in a contract you resent.</div></div>
+  </div>
+</div></div>
+
+<!-- CTA -->
+<div class="cta-sec">
+  <div class="cta-blob"></div>
+  <h2>See your agent before<br><span class="grad-text">you pay a cent.</span></h2>
+  <p>We build a working demo agent for your business in 48 hours, completely free. Walk away if it&rsquo;s not right &mdash; no pressure.</p>
+  <div class="cta-acts">
+    <button class="btn-grad" onclick="goTo('contact')">&#128640; Book Free Demo</button>
+    <button class="btn-ghost" onclick="goTo('demo')">&#9654; Try Live Demo</button>
+  </div>
+  <div class="cta-trust">NO CREDIT CARD &nbsp;&bull;&nbsp; LIVE IN 7 DAYS &nbsp;&bull;&nbsp; CANCEL ANYTIME</div>
+</div>
+
+<footer>
+  <span class="flogo" onclick="goTo('home')">SupportFlow AI</span>
+  <div class="flinks">
+    <a onclick="goTo('home')">Home</a>
+    <a onclick="goTo('home');scrollTo('#pricing')">Pricing</a>
+    <a onclick="goTo('about')">About</a>
+    <a onclick="goTo('demo')">Demo</a>
+    <a onclick="goTo('contact')">Contact</a>
+  </div>
+  <div class="fcopy">&copy; 2026 SupportFlow AI</div>
+</footer>
+</div><!-- end home -->
+
+
+<!-- ═══════════════════════════════
+     CONTACT PAGE
+═══════════════════════════════ -->
+<div class="page" id="pg-contact">
+<div class="contact-wrap">
+  <div class="sec-badge sb-pink" style="margin-bottom:16px"><div class="pulse-dot"></div> Free Demo &bull; No Credit Card</div>
+  <h1 class="fi" style="font-family:var(--display);font-size:clamp(22px,3.5vw,42px);font-weight:900;letter-spacing:-1px;margin-bottom:14px;">See your AI agent<br><span class="grad-text">before you pay a cent.</span></h1>
+  <p class="fi" style="font-size:15px;color:var(--muted);max-width:540px;line-height:1.85;margin-bottom:48px;">Tell us about your business and we&rsquo;ll build a working demo agent in 48 hours &mdash; completely free. If it&rsquo;s not right for you, walk away. No pressure.</p>
+  <div class="contact-grid">
+    <div class="form-card fi">
+      <div class="form-ttl">&#9632; Book Your Free Demo</div>
+      <form id="contactForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+        <div class="frow">
+          <div class="field"><label>First Name *</label><input type="text" name="first_name" placeholder="John" required/></div>
+          <div class="field"><label>Last Name *</label><input type="text" name="last_name" placeholder="Smith" required/></div>
+        </div>
+        <div class="field"><label>Business Email *</label><input type="email" name="email" placeholder="john@yourbusiness.com" required/></div>
+        <div class="field"><label>Business Name *</label><input type="text" name="business" placeholder="Your Business Name" required/></div>
+        <div class="field">
+          <label>Your Industry *</label>
+          <select name="industry" required>
+            <option value="">Select your industry...</option>
+            <option>E-commerce / Online Store</option><option>Real Estate</option>
+            <option>Digital Agency</option><option>SaaS / Tech</option>
+            <option>Healthcare</option><option>Hospitality / Restaurant</option>
+            <option>Professional Services</option><option>Retail</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Which plan interests you?</label>
+          <select name="plan" id="planSel">
+            <option value="">Not sure yet</option>
+            <option value="starter">Starter &mdash; $49/mo (1 channel)</option>
+            <option value="growth">Growth &mdash; $149/mo (3 channels + lead qualification)</option>
+            <option value="scale">Scale &mdash; Custom (all channels)</option>
+          </select>
+        </div>
+        <div class="field"><label>Your biggest support challenge</label><textarea name="challenge" placeholder="e.g. We get 100+ WhatsApp messages a day and can't keep up after hours..."></textarea></div>
+        <input type="hidden" name="_subject" value="New SupportFlow AI Demo Request"/>
+        <button type="submit" class="submit-btn" id="submitBtn">&#128640; Build My Free Demo Agent</button>
+        <p class="form-note">We reply within 24 hours. No spam, ever.</p>
+      </form>
+      <div class="success-box" id="successBox">
+        <h3>&#10003; Request Received!</h3>
+        <p>We&rsquo;ll get back to you within 24 hours to schedule your demo call. Check your inbox!</p>
+      </div>
+    </div>
+    <div class="info-stack fi">
+      <div class="info-card">
+        <div class="ititle">&#9679; Get In Touch</div>
+        <div class="iitem"><span style="font-size:16px">&#128139;</span><div><strong>Email</strong>hello@supportflow.ai</div></div>
+        <div class="iitem"><span style="font-size:16px">&#128242;</span><div><strong>WhatsApp</strong>+1 (555) 000-0000</div></div>
+        <div class="iitem"><span style="font-size:16px">&#128336;</span><div><strong>Response time</strong>Within 24 hours on business days</div></div>
+        <div class="tbadges">
+          <span class="tbadge pink">No Credit Card</span>
+          <span class="tbadge purple">Cancel Anytime</span>
+          <span class="tbadge green">Live in 7 Days</span>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="ititle">&#9658; What Happens Next</div>
+        <div class="iitem"><span style="font-family:var(--display);font-size:11px;color:#b98fff;font-weight:700;min-width:22px">01</span><span style="font-size:13px;color:var(--muted)">Fill in the form with info about your business.</span></div>
+        <div class="iitem"><span style="font-family:var(--display);font-size:11px;color:#b98fff;font-weight:700;min-width:22px">02</span><span style="font-size:13px;color:var(--muted)">We reply within 24 hours to schedule a 30-minute call.</span></div>
+        <div class="iitem"><span style="font-family:var(--display);font-size:11px;color:#b98fff;font-weight:700;min-width:22px">03</span><span style="font-size:13px;color:var(--muted)">Within 48 hours we build your demo agent &mdash; free.</span></div>
+        <div class="iitem"><span style="font-family:var(--display);font-size:11px;color:#b98fff;font-weight:700;min-width:22px">04</span><span style="font-size:13px;color:var(--muted)">You test it. Love it &rarr; go live. Don&rsquo;t &rarr; no charge.</span></div>
+      </div>
+      <div class="info-card">
+        <div class="ititle">&#9998; What to Prepare</div>
+        <div class="iitem"><span style="color:var(--p3);font-weight:700">&#8594;</span><span style="font-size:13px;color:var(--muted)">Your top 10&ndash;20 most common customer questions</span></div>
+        <div class="iitem"><span style="color:var(--p3);font-weight:700">&#8594;</span><span style="font-size:13px;color:var(--muted)">Any existing FAQs, docs, or product pages</span></div>
+        <div class="iitem"><span style="color:var(--p3);font-weight:700">&#8594;</span><span style="font-size:13px;color:var(--muted)">Which channels you want (website, WhatsApp, etc.)</span></div>
+        <div class="iitem"><span style="color:var(--p3);font-weight:700">&#8594;</span><span style="font-size:13px;color:var(--muted)">Your preferred tone &mdash; formal, friendly, or in between</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<footer>
+  <span class="flogo" onclick="goTo('home')">SupportFlow AI</span>
+  <div class="flinks"><a onclick="goTo('home')">Home</a><a onclick="goTo('home');scrollTo('#pricing')">Pricing</a><a onclick="goTo('demo')">Demo</a><a onclick="goTo('about')">About</a></div>
+  <div class="fcopy">&copy; 2026 SupportFlow AI</div>
+</footer>
+</div><!-- end contact -->
+
+
+<!-- ═══════════════════════════════
+     DEMO PAGE
+═══════════════════════════════ -->
+<div class="page" id="pg-demo">
+<div class="demo-layout">
+  <div class="demo-sb">
+    <div class="dsb-sec">
+      <div class="dsb-lbl">Business Type</div>
+      <button class="pb act" onclick="setP('ecom',this)"><span class="pb-ic">&#128722;</span>E-commerce Store</button>
+      <button class="pb" onclick="setP('realestate',this)"><span class="pb-ic">&#127968;</span>Real Estate Agency</button>
+      <button class="pb" onclick="setP('agency',this)"><span class="pb-ic">&#128187;</span>Digital Agency</button>
+      <button class="pb" onclick="setP('restaurant',this)"><span class="pb-ic">&#127829;</span>Restaurant</button>
+      <button class="pb" onclick="setP('general',this)"><span class="pb-ic">&#127970;</span>General Business</button>
+    </div>
+    <div class="dsb-sec">
+      <div class="dsb-lbl">Channel</div>
+      <div class="ch-row">
+        <button class="chb act" onclick="setCh('Website Chat',this)">Web</button>
+        <button class="chb" onclick="setCh('WhatsApp',this)">WhatsApp</button>
+        <button class="chb" onclick="setCh('Instagram',this)">Instagram</button>
+        <button class="chb" onclick="setCh('Email',this)">Email</button>
+      </div>
+    </div>
+    <div class="dsb-sec">
+      <div class="dsb-lbl">Try These</div>
+      <div class="sq-note">Click to send a sample:</div>
+      <button class="sqb" onclick="demoAsk(this.textContent)">What are your opening hours?</button>
+      <button class="sqb" onclick="demoAsk(this.textContent)">How do I track my order?</button>
+      <button class="sqb" onclick="demoAsk(this.textContent)">Can I get a refund?</button>
+      <button class="sqb" onclick="demoAsk(this.textContent)">Do you ship internationally?</button>
+      <button class="sqb" onclick="demoAsk(this.textContent)">I need to speak to a human</button>
+    </div>
+    <div class="dsb-sec">
+      <button class="rst-btn" onclick="demoReset()">&#8635; Reset Conversation</button>
+    </div>
+  </div>
+  <div class="demo-chat">
+    <div class="demo-hdr">
+      <div class="da-info">
+        <div class="da-av">&#129302;</div>
+        <div><div class="da-name" id="demoName">SF-01 Support Agent</div><div class="da-sts">Online &mdash; replying instantly</div></div>
+      </div>
+      <div class="ch-tag" id="demoCh">Website Chat</div>
+    </div>
+    <div class="demo-msgs" id="demoMsgs"></div>
+    <div class="demo-inp">
+      <div class="dinp-row">
+        <input class="dinp" id="demoInp" placeholder="Type your message..." autocomplete="off"/>
+        <button class="dsend" id="demoSend">Send &#8593;</button>
+      </div>
+      <div class="dinp-note">Live AI demo &mdash; <span style="color:var(--p2);cursor:pointer" onclick="goTo('contact')">book a free demo</span> to get one for your business.</div>
+    </div>
+  </div>
+</div>
+<footer>
+  <span class="flogo" onclick="goTo('home')">SupportFlow AI</span>
+  <div class="flinks"><a onclick="goTo('home')">Home</a><a onclick="goTo('home');scrollTo('#pricing')">Pricing</a><a onclick="goTo('contact')">Book Demo</a></div>
+  <div class="fcopy">&copy; 2026 SupportFlow AI</div>
+</footer>
+</div><!-- end demo -->
+
+
+<!-- ═══════════════════════════════
+     ABOUT PAGE
+═══════════════════════════════ -->
+<div class="page" id="pg-about">
+<div class="about-hero fi">
+  <div class="sec-badge sb-purple">Our Story</div>
+  <h1 style="font-family:var(--display);font-size:clamp(24px,4vw,48px);font-weight:900;letter-spacing:-1px;margin-bottom:18px;line-height:1.1;">We believe every business deserves a<br><span class="grad-text">support team that never sleeps.</span></h1>
+  <p style="font-size:15px;color:var(--muted);max-width:600px;margin:0 auto;line-height:1.85;">SupportFlow AI was built because we kept watching great businesses lose customers to slow replies, missed messages, and overwhelmed teams &mdash; problems that AI can simply solve.</p>
+</div>
+<div class="about-body">
+  <div class="sb fi">
+    <div class="sb-ey">Where It Started</div>
+    <h2>The problem we kept seeing</h2>
+    <p>We worked with dozens of businesses across e-commerce, real estate, agencies, and services. The pattern was the same everywhere: <strong>teams spending hours every day answering the same questions over and over.</strong></p>
+    <p>A clothing store answering &ldquo;where is my order?&rdquo; fifty times a day. A real estate agency missing leads because no one was on WhatsApp after 6pm. A digital agency spending half their week on client support instead of the actual work.</p>
+  </div>
+  <div class="qblock fi">
+    <p>&ldquo;The best support interaction is the one that happens instantly, resolves the issue completely, and doesn&rsquo;t require your team to lift a finger.&rdquo;</p>
+    <cite>&mdash; The SupportFlow AI founding principle</cite>
+  </div>
+  <div class="adiv"></div>
+  <div class="sb fi">
+    <div class="sb-ey">What We Built</div>
+    <h2>Done-for-you, not do-it-yourself</h2>
+    <p>Most AI tools put the burden on you. Sign up, figure it out, build the flows, train the model, maintain it. For a small business owner, that&rsquo;s just another job.</p>
+    <p>We built SupportFlow AI differently: <strong>we do the work.</strong> You spend 30 minutes on a call with us. We spend 48 hours building your agent. You go live in 7 days without writing a single line of code.</p>
+  </div>
+  <div class="adiv"></div>
+  <div class="sb fi">
+    <div class="sb-ey">Our Promise</div>
+    <h2>We only win when you win</h2>
+    <p>No annual contracts. No lock-ins. No hidden fees. <strong>You pay month to month and you can cancel any time.</strong></p>
+    <p>We build your demo agent completely free before you pay a cent. If it doesn&rsquo;t impress you, you walk away. We&rsquo;d rather earn your business every month than trap you in a contract you regret.</p>
+  </div>
+</div>
+
+<div class="about-vals">
+  <div class="avi">
+    <div class="sec-badge sb-purple">&#9679; What We Believe</div>
+    <h2 class="sec-t" style="margin-bottom:36px">Our <span class="grad-text">principles.</span></h2>
+    <div class="val-grid">
+      <div class="val fi"><div class="val-ic">&#9889;</div><h3>Speed is respect</h3><p>Keeping a customer waiting for a basic answer is a form of disrespect. 30 seconds or less is the standard we hold ourselves to.</p></div>
+      <div class="val fi"><div class="val-ic">&#129309;</div><h3>Humans where it matters</h3><p>AI should handle the routine. Humans should handle the complex, sensitive, and high-stakes. We never try to replace that judgment.</p></div>
+      <div class="val fi"><div class="val-ic">&#128218;</div><h3>Honest about AI</h3><p>AI is powerful. It&rsquo;s also limited. We train agents carefully, monitor them constantly, and tell clients exactly what to expect.</p></div>
+      <div class="val fi"><div class="val-ic">&#128200;</div><h3>Results over features</h3><p>Nobody cares how many features the platform has. They care whether tickets dropped and their team got time back.</p></div>
+      <div class="val fi"><div class="val-ic">&#128275;</div><h3>No lock-in, ever</h3><p>We believe you should stay because the product works, not because you signed a contract. Month-to-month, always.</p></div>
+      <div class="val fi"><div class="val-ic">&#128269;</div><h3>Full transparency</h3><p>We share performance data openly. If something isn&rsquo;t working, we tell you and fix it. No hiding behind dashboards.</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="about-nums">
+  <div class="sec-badge sb-pink">&#128202; By The Numbers</div>
+  <h2 class="sec-t" style="margin-bottom:32px">What our clients <span class="grad-text">actually see.</span></h2>
+  <div class="num-grid">
+    <div class="nc fi"><div class="nb">50%+</div><div class="nl">Avg ticket reduction in month 1</div></div>
+    <div class="nc fi"><div class="nb">&lt;30s</div><div class="nl">Average first response time</div></div>
+    <div class="nc fi"><div class="nb">7 Days</div><div class="nl">From call to live agent</div></div>
+    <div class="nc fi"><div class="nb">10hrs</div><div class="nl">Staff hours saved per week</div></div>
+  </div>
+</div>
+
+<div class="cta-sec">
+  <div class="cta-blob"></div>
+  <h2>Ready to see it <span class="grad-text">in action?</span></h2>
+  <p>We build a working demo agent for your business in 48 hours &mdash; free. No credit card, no commitment.</p>
+  <div class="cta-acts">
+    <button class="btn-grad" onclick="goTo('contact')">&#128640; Book Free Demo</button>
+    <button class="btn-ghost" onclick="goTo('demo')">&#9654; Try Live Demo</button>
+  </div>
+</div>
+
+<footer>
+  <span class="flogo" onclick="goTo('home')">SupportFlow AI</span>
+  <div class="flinks"><a onclick="goTo('home')">Home</a><a onclick="goTo('home');scrollTo('#pricing')">Pricing</a><a onclick="goTo('demo')">Demo</a><a onclick="goTo('contact')">Contact</a></div>
+  <div class="fcopy">&copy; 2026 SupportFlow AI</div>
+</footer>
+</div><!-- end about -->
+
+
+<script>
+/* ── PAGE ROUTER ── */
+function goTo(pg){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('pg-'+pg).classList.add('active');
+  window.scrollTo(0,0);
+  setTimeout(function(){
+    document.querySelectorAll('.fi').forEach(function(el){
+      var r=el.getBoundingClientRect();
+      if(r.top<window.innerHeight)el.classList.add('vis');
+    });
+  },100);
+}
+function scrollTo(id){
+  setTimeout(function(){
+    var el=document.querySelector(id);
+    if(el)el.scrollIntoView({behavior:'smooth'});
+  },150);
+}
+
+/* ── HAMBURGER ── */
+var ham=document.getElementById('ham'),mob=document.getElementById('mobMenu');
+function closeMob(){ham.classList.remove('open');mob.classList.remove('open');}
+ham.addEventListener('click',function(){ham.classList.toggle('open');mob.classList.toggle('open');});
+
+/* ── SCROLL FADE ── */
+var obs=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('vis');});
+},{threshold:0.1});
+document.querySelectorAll('.fi').forEach(function(el){obs.observe(el);});
+
+/* ── FAQ ── */
+document.querySelectorAll('.fq').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var item=btn.parentElement;
+    var open=item.classList.contains('open');
+    document.querySelectorAll('.fitem').forEach(function(i){i.classList.remove('open');});
+    if(!open)item.classList.add('open');
+  });
+});
+
+/* ── HOME CHAT ── */
+var cMsgs=document.getElementById('chatMsgs');
+var cInp=document.getElementById('chatInput');
+var cSend=document.getElementById('chatSend');
+var cHist=[];
+var SYS='You are SF-01, the AI agent for SupportFlow AI. Reply in 2-3 sentences max, slightly robotic but warm. SupportFlow builds custom AI support agents for any business. Pricing: $49/mo Starter (1 channel), $149/mo Growth (3 channels, lead qualification, calendar booking), Custom Scale. Live in 7 days, no contracts. Channels: website, WhatsApp, Instagram, Messenger, email, Telegram. Results: 50%+ fewer tickets, response time under 30s, 10+ hours saved weekly. Done-for-you. Free demo before payment. Book via contact page.';
+function cAddMsg(r,t){var d=document.createElement('div');d.className='mrow '+r;var b=document.createElement('div');b.className='bbl';b.textContent=t;d.appendChild(b);cMsgs.appendChild(d);cMsgs.scrollTop=cMsgs.scrollHeight;}
+function cAddTyping(){var d=document.createElement('div');d.className='typing-row';d.id='cTyp';d.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';cMsgs.appendChild(d);cMsgs.scrollTop=cMsgs.scrollHeight;}
+function cRemTyping(){var t=document.getElementById('cTyp');if(t)t.remove();}
+cAddMsg('ai','System online! I am SF-01 \ud83e\udd16 Ask me anything about our AI agents or how we can help your business.');
+async function cSendMsg(){
+  var t=cInp.value.trim();if(!t)return;
+  cInp.value='';cAddMsg('user',t);cHist.push({role:'user',content:t});cAddTyping();
+  try{
+    var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:SYS,messages:cHist})});
+    var d=await r.json();cRemTyping();
+    var rep='';if(d.content)for(var i=0;i<d.content.length;i++){if(d.content[i].type==='text'){rep=d.content[i].text;break;}}
+    if(!rep)rep='Connection error. Please try again.';
+    cAddMsg('ai',rep);cHist.push({role:'assistant',content:rep});
+  }catch(e){cRemTyping();cAddMsg('ai','Connection error. Visit contact page to book your free demo.');}
+}
+cSend.addEventListener('click',cSendMsg);
+cInp.addEventListener('keydown',function(e){if(e.key==='Enter')cSendMsg();});
+
+/* ── DEMO PAGE ── */
+var dP='ecom',dCh='Website Chat',dHist=[];
+var personas={
+  ecom:{name:'ShopBot AI',sys:"You are ShopBot for StyleCo online store. Friendly and concise. Hours: 9am-6pm Mon-Fri. Shipping: 3-5 days, free over $75. Returns: 30-day free. If unsure, create a support ticket. Max 3 sentences."},
+  realestate:{name:'HomeFinder AI',sys:"You are HomeFinder AI for Premier Realty. Professional. Handle buying, selling, renting. Free valuations. Viewings Mon-Sat 9am-5pm. Qualify buyers: budget, timeline, area, bedrooms. Max 3 sentences."},
+  agency:{name:'AgencyBot AI',sys:"You are AgencyBot for DigitalEdge marketing agency. SEO from $500/mo, paid ads from $300/mo, social from $400/mo, websites from $1500. For enquiries collect: company, budget, goals, email. Max 3 sentences."},
+  restaurant:{name:'TableBot AI',sys:"You are TableBot for Bella Cucina Italian restaurant. Warm and welcoming. Hours: Tue-Sun 12pm-10pm, closed Mon. For reservations collect: name, date, time, guests, dietary needs. Max 3 sentences."},
+  general:{name:'SF-01 Agent',sys:"You are SF-01, a demo AI agent by SupportFlow AI. Be helpful and concise. This is a demo. Max 3 sentences."}
+};
+function setP(p,btn){dP=p;document.querySelectorAll('.pb').forEach(function(b){b.classList.remove('act');});btn.classList.add('act');document.getElementById('demoName').textContent=personas[p].name;demoReset(true);}
+function setCh(ch,btn){dCh=ch;document.querySelectorAll('.chb').forEach(function(b){b.classList.remove('act');});btn.classList.add('act');document.getElementById('demoCh').textContent=ch;}
+var dMsgs=document.getElementById('demoMsgs');
+function dNow(){var d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}
+function dAddMsg(role,text){
+  var w=document.createElement('div');w.className='drow '+role;
+  var av=document.createElement('div');av.className='dav';av.innerHTML=role==='ai'?'&#129302;':'You';
+  var r=document.createElement('div');
+  var b=document.createElement('div');b.className='dbbl';b.textContent=text;
+  var t=document.createElement('div');t.className='dtm';t.textContent=dNow();
+  r.appendChild(b);r.appendChild(t);
+  if(role==='ai'){w.appendChild(av);w.appendChild(r);}else{w.appendChild(r);w.appendChild(av);}
+  dMsgs.appendChild(w);dMsgs.scrollTop=dMsgs.scrollHeight;
+}
+function dAddTyping(){var w=document.createElement('div');w.className='dtyping-w';w.id='dTyp';var av=document.createElement('div');av.className='dav';av.innerHTML='&#129302;';var t=document.createElement('div');t.className='dtyping';t.innerHTML='<span></span><span></span><span></span>';w.appendChild(av);w.appendChild(t);dMsgs.appendChild(w);dMsgs.scrollTop=dMsgs.scrollHeight;}
+function dRemTyping(){var t=document.getElementById('dTyp');if(t)t.remove();}
+function demoReset(silent){dHist=[];dMsgs.innerHTML='';addMsg: dAddMsg('ai','Hello! I\'m '+personas[dP].name+' \u2014 a demo AI agent. Ask me anything!');}
+async function demoSend(text){
+  if(!text)return;dAddMsg('user',text);dHist.push({role:'user',content:text});dAddTyping();
+  var btn=document.getElementById('demoSend');btn.disabled=true;
+  try{
+    var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:personas[dP].sys+' Channel: '+dCh+'.',messages:dHist})});
+    var d=await r.json();dRemTyping();
+    var rep='';if(d.content)for(var i=0;i<d.content.length;i++){if(d.content[i].type==='text'){rep=d.content[i].text;break;}}
+    if(!rep)rep='Connection error. Please try again.';
+    dAddMsg('ai',rep);dHist.push({role:'assistant',content:rep});
+  }catch(e){dRemTyping();dAddMsg('ai','Connection error. Please try again.');}
+  btn.disabled=false;
+}
+function demoAsk(q){document.getElementById('demoInp').value=q;demoSend(q);document.getElementById('demoInp').value='';}
+var dInp=document.getElementById('demoInp');
+document.getElementById('demoSend').addEventListener('click',function(){var t=dInp.value.trim();if(t){dInp.value='';demoSend(t);}});
+dInp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();var t=dInp.value.trim();if(t){dInp.value='';demoSend(t);}}});
+demoReset(true);
+
+/* ── CONTACT FORM ── */
+var form=document.getElementById('contactForm');
+var submitBtn=document.getElementById('submitBtn');
+var successBox=document.getElementById('successBox');
+form.addEventListener('submit',async function(e){
+  e.preventDefault();submitBtn.disabled=true;submitBtn.textContent='Sending...';
+  var data=new FormData(form);
+  try{
+    var r=await fetch(form.action,{method:'POST',body:data,headers:{Accept:'application/json'}});
+    if(r.ok){form.style.display='none';successBox.style.display='block';}
+    else{submitBtn.disabled=false;submitBtn.textContent='Build My Free Demo Agent';alert('Something went wrong. Please email hello@supportflow.ai');}
+  }catch(err){submitBtn.disabled=false;submitBtn.textContent='Build My Free Demo Agent';alert('Something went wrong. Please email hello@supportflow.ai');}
+});
+</script>
+</body>
+</html>
