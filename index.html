@@ -1119,7 +1119,7 @@ async function cSendMsg(){
   var t=cInp.value.trim();if(!t)return;
   cInp.value='';cAddMsg('user',t);cHist.push({role:'user',content:t});cAddTyping();
   try{
-    var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:SYS,messages:cHist})});
+    var r=await fetch('https://wild-lake-970a.stanlyabegunasekara227.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:SYS,messages:cHist})});
     var d=await r.json();cRemTyping();
     var rep='';if(d.content)for(var i=0;i<d.content.length;i++){if(d.content[i].type==='text'){rep=d.content[i].text;break;}}
     if(!rep)rep='Connection error. Please try again.';
@@ -1159,7 +1159,7 @@ async function demoSend(text){
   if(!text)return;dAddMsg('user',text);dHist.push({role:'user',content:text});dAddTyping();
   var btn=document.getElementById('demoSend');btn.disabled=true;
   try{
-    var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:personas[dP].sys+' Channel: '+dCh+'.',messages:dHist})});
+    var r=await fetch('https://wild-lake-970a.stanlyabegunasekara227.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:personas[dP].sys+' Channel: '+dCh+'.',messages:dHist})});
     var d=await r.json();dRemTyping();
     var rep='';if(d.content)for(var i=0;i<d.content.length;i++){if(d.content[i].type==='text'){rep=d.content[i].text;break;}}
     if(!rep)rep='Connection error. Please try again.';
